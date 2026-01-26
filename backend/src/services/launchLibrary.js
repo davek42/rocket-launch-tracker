@@ -153,6 +153,16 @@ export function mapLaunchToDb(apiLaunch) {
     mission_orbit_name: apiLaunch.mission?.orbit?.name || null,
     mission_orbit_abbrev: apiLaunch.mission?.orbit?.abbrev || null,
 
+    // Spacecraft/Payload (from rocket.spacecraft_stage)
+    spacecraft_stage_id: apiLaunch.rocket?.spacecraft_stage?.id || null,
+    spacecraft_name: apiLaunch.rocket?.spacecraft_stage?.spacecraft?.name || null,
+    spacecraft_serial_number: apiLaunch.rocket?.spacecraft_stage?.spacecraft?.serial_number || null,
+    spacecraft_status: apiLaunch.rocket?.spacecraft_stage?.spacecraft?.status?.name || null,
+    spacecraft_description: apiLaunch.rocket?.spacecraft_stage?.spacecraft?.description || null,
+    spacecraft_destination: apiLaunch.rocket?.spacecraft_stage?.destination || null,
+    payload_count: apiLaunch.rocket?.spacecraft_stage?.spacecraft_count || null,
+    payload_total_mass_kg: apiLaunch.rocket?.spacecraft_stage?.spacecraft?.spacecraft_config?.payload_capacity || null,
+
     // Media
     image_url: apiLaunch.image || null,
     infographic_url: apiLaunch.infographic || null,

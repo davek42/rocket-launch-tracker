@@ -57,6 +57,16 @@ CREATE TABLE IF NOT EXISTS launches (
     mission_orbit_name TEXT,       -- LEO, GEO, SSO, etc.
     mission_orbit_abbrev TEXT,
 
+    -- Spacecraft/Payload information
+    spacecraft_stage_id INTEGER,
+    spacecraft_name TEXT,          -- Primary spacecraft name
+    spacecraft_serial_number TEXT,
+    spacecraft_status TEXT,        -- Active, Inactive, Lost, etc.
+    spacecraft_description TEXT,
+    spacecraft_destination TEXT,   -- e.g., "International Space Station", "Mars"
+    payload_count INTEGER,         -- Number of payloads
+    payload_total_mass_kg REAL,    -- Total payload mass in kilograms
+
     -- Media
     image_url TEXT,                -- Launch/mission image
     infographic_url TEXT,
@@ -94,6 +104,10 @@ CREATE INDEX IF NOT EXISTS idx_launches_status ON launches(status_abbrev);
 -- Filter by rocket
 CREATE INDEX IF NOT EXISTS idx_launches_rocket_name ON launches(rocket_name);
 CREATE INDEX IF NOT EXISTS idx_launches_rocket_family ON launches(rocket_family);
+
+-- Filter by spacecraft/payload
+CREATE INDEX IF NOT EXISTS idx_launches_spacecraft_name ON launches(spacecraft_name);
+CREATE INDEX IF NOT EXISTS idx_launches_spacecraft_destination ON launches(spacecraft_destination);
 
 -- Compound index for common query: upcoming launches sorted by date
 CREATE INDEX IF NOT EXISTS idx_launches_upcoming ON launches(net, status_abbrev);
@@ -161,3 +175,31 @@ CREATE TABLE IF NOT EXISTS locations (
 
 CREATE INDEX IF NOT EXISTS idx_locations_name ON locations(name);
 CREATE INDEX IF NOT EXISTS idx_locations_country ON locations(country_code);
+
+-- ============================================
+-- MANUAL PAYLOADS TABLE
+-- Manually curated payload mass data for missions
+-- that don't have it in the API
+-- ============================================
+CREATE TABLE IF NOT EXISTS manual_payloads (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    -- Pattern to match launch/mission names
+    -- Use SQL LIKE patterns (e.g., "GPS III%", "Starlink%", or exact names)
+    mission_pattern TEXT NOT NULL UNIQUE,
+
+    -- Payload mass in kilograms
+    payload_mass_kg REAL NOT NULL,
+
+    -- Data source (URL, reference, documentation)
+    source TEXT,
+
+    -- Additional notes about the payload
+    notes TEXT,
+
+    -- Timestamps for audit trail
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_manual_payloads_pattern ON manual_payloads(mission_pattern);

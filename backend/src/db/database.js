@@ -85,6 +85,8 @@ export function upsertLaunch(launch) {
       location_id, location_name, location_country_code, location_map_image, location_timezone,
       mission_id, mission_name, mission_description, mission_type,
       mission_orbit_id, mission_orbit_name, mission_orbit_abbrev,
+      spacecraft_stage_id, spacecraft_name, spacecraft_serial_number, spacecraft_status,
+      spacecraft_description, spacecraft_destination, payload_count, payload_total_mass_kg,
       image_url, infographic_url, webcast_live, slug_url,
       last_updated, updated_at
     ) VALUES (
@@ -96,6 +98,8 @@ export function upsertLaunch(launch) {
       $location_id, $location_name, $location_country_code, $location_map_image, $location_timezone,
       $mission_id, $mission_name, $mission_description, $mission_type,
       $mission_orbit_id, $mission_orbit_name, $mission_orbit_abbrev,
+      $spacecraft_stage_id, $spacecraft_name, $spacecraft_serial_number, $spacecraft_status,
+      $spacecraft_description, $spacecraft_destination, $payload_count, $payload_total_mass_kg,
       $image_url, $infographic_url, $webcast_live, $slug_url,
       $last_updated, CURRENT_TIMESTAMP
     )
@@ -137,6 +141,14 @@ export function upsertLaunch(launch) {
       mission_orbit_id = $mission_orbit_id,
       mission_orbit_name = $mission_orbit_name,
       mission_orbit_abbrev = $mission_orbit_abbrev,
+      spacecraft_stage_id = $spacecraft_stage_id,
+      spacecraft_name = $spacecraft_name,
+      spacecraft_serial_number = $spacecraft_serial_number,
+      spacecraft_status = $spacecraft_status,
+      spacecraft_description = $spacecraft_description,
+      spacecraft_destination = $spacecraft_destination,
+      payload_count = $payload_count,
+      payload_total_mass_kg = $payload_total_mass_kg,
       image_url = $image_url,
       infographic_url = $infographic_url,
       webcast_live = $webcast_live,
@@ -201,7 +213,15 @@ export function updateSyncLog(syncId, updates) {
  * @returns {Object|null} - Launch object or null
  */
 export function getLaunchById(id) {
-  const stmt = db.prepare('SELECT * FROM launches WHERE id = ?');
+  const stmt = db.prepare(`
+    SELECT
+      launches.*,
+      manual_payloads.payload_mass_kg as manual_payload_mass_kg,
+      manual_payloads.source as manual_payload_source
+    FROM launches
+    LEFT JOIN manual_payloads ON launches.name LIKE manual_payloads.mission_pattern
+    WHERE launches.id = ?
+  `);
   return stmt.get(id);
 }
 
@@ -307,10 +327,14 @@ export function queryLaunches(filters = {}) {
   `);
   const { total } = countStmt.get(...params);
 
-  // Get paginated results
+  // Get paginated results with manual payload data
   const dataStmt = db.prepare(`
-    SELECT *
+    SELECT
+      launches.*,
+      manual_payloads.payload_mass_kg as manual_payload_mass_kg,
+      manual_payloads.source as manual_payload_source
     FROM launches
+    LEFT JOIN manual_payloads ON launches.name LIKE manual_payloads.mission_pattern
     ${whereClause}
     ORDER BY ${sortField} ${sortOrder}
     LIMIT ? OFFSET ?

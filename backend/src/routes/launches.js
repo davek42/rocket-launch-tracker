@@ -287,6 +287,17 @@ function formatLaunchForAPI(launch) {
         abbrev: launch.mission_orbit_abbrev
       }
     },
+    spacecraft: {
+      id: launch.spacecraft_stage_id,
+      name: launch.spacecraft_name,
+      serialNumber: launch.spacecraft_serial_number,
+      status: launch.spacecraft_status,
+      description: launch.spacecraft_description,
+      destination: launch.spacecraft_destination,
+      payloadCount: launch.payload_count,
+      payloadTotalMassKg: launch.payload_total_mass_kg || launch.manual_payload_mass_kg || null,
+      payloadSource: launch.payload_total_mass_kg ? 'api' : (launch.manual_payload_mass_kg ? 'manual' : null)
+    },
     imageUrl: launch.image_url,
     infographicUrl: launch.infographic_url,
     webcastLive: launch.webcast_live === 1,

@@ -1,5 +1,5 @@
 import { format, formatDistanceToNow, isPast, isFuture } from 'date-fns';
-import { Calendar, MapPin, Rocket, Download } from 'lucide-react';
+import { Calendar, MapPin, Rocket, Download, Package } from 'lucide-react';
 import { getICSDownloadUrl } from '../utils/api';
 
 export default function LaunchCard({ launch }) {
@@ -65,6 +65,25 @@ export default function LaunchCard({ launch }) {
           <MapPin className="w-5 h-5 mr-2 flex-shrink-0" />
           <p className="text-sm">{launch.location.name}</p>
         </div>
+
+        {(launch.spacecraft?.name || launch.spacecraft?.payloadTotalMassKg) && (
+          <div className="flex items-center text-gray-600">
+            <Package className="w-5 h-5 mr-2 flex-shrink-0" />
+            <div>
+              {launch.spacecraft.name && (
+                <p className="font-semibold text-sm">{launch.spacecraft.name}</p>
+              )}
+              {launch.spacecraft.destination && (
+                <p className="text-xs text-gray-500">→ {launch.spacecraft.destination}</p>
+              )}
+              {launch.spacecraft.payloadTotalMassKg && (
+                <p className="text-xs text-gray-500">
+                  Payload{launch.spacecraft.name ? ' Capacity' : ''}: {launch.spacecraft.payloadTotalMassKg.toLocaleString()} kg
+                </p>
+              )}
+            </div>
+          </div>
+        )}
 
         {launch.mission?.description && (
           <p className="text-sm text-gray-600 mt-4 line-clamp-2">
