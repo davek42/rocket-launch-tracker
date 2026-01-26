@@ -4,9 +4,11 @@ import { fetchLaunches, fetchFilters, getBulkICSDownloadUrl } from './utils/api'
 import Header from './components/Header';
 import LaunchList from './components/LaunchList';
 import SearchFilters from './components/SearchFilters';
+import About from './components/About';
 import { Rocket } from 'lucide-react';
 
 function App() {
+  const [showAbout, setShowAbout] = useState(false);
   const [filters, setFilters] = useState({
     upcoming: true,
     limit: 20,
@@ -60,7 +62,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Header />
+      <Header onAboutClick={() => setShowAbout(true)} />
 
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -85,6 +87,8 @@ function App() {
           </div>
         </div>
       </main>
+
+      <About isOpen={showAbout} onClose={() => setShowAbout(false)} />
     </div>
   );
 }
