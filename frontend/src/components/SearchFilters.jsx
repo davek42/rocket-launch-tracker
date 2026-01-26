@@ -6,12 +6,26 @@ export default function SearchFilters({ filters, filterOptions, onFilterChange, 
     search: '',
     provider: '',
     country: '',
+    location: '',
     rocket: '',
     status: ''
   });
 
   const handleInputChange = (key, value) => {
-    setLocalFilters({ ...localFilters, [key]: value });
+    // If changing country, clear location if it doesn't match the new country
+    if (key === 'country') {
+      const newFilters = { ...localFilters, [key]: value };
+      // Clear location if it's set and doesn't belong to the new country
+      if (localFilters.location && value) {
+        const currentLocation = filterOptions.locations?.find(loc => loc.name === localFilters.location);
+        if (currentLocation && currentLocation.countryCode !== value) {
+          newFilters.location = '';
+        }
+      }
+      setLocalFilters(newFilters);
+    } else {
+      setLocalFilters({ ...localFilters, [key]: value });
+    }
   };
 
   const applyFilters = () => {
@@ -23,6 +37,7 @@ export default function SearchFilters({ filters, filterOptions, onFilterChange, 
       search: '',
       provider: '',
       country: '',
+      location: '',
       rocket: '',
       status: '',
       upcoming: true
@@ -133,6 +148,30 @@ export default function SearchFilters({ filters, filterOptions, onFilterChange, 
                   {country.code} ({country.count})
                 </option>
               ))}
+            </select>
+          </div>
+        )}
+
+        {/* Location */}
+        {filterOptions.locations && (
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Launch Location
+            </label>
+            <select
+              value={localFilters.location}
+              onChange={(e) => handleInputChange('location', e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">All Locations</option>
+              {filterOptions.locations
+                .filter(loc => !localFilters.country || loc.countryCode === localFilters.country)
+                .slice(0, 30)
+                .map((location) => (
+                  <option key={location.name} value={location.name}>
+                    {location.name} ({location.count})
+                  </option>
+                ))}
             </select>
           </div>
         )}
