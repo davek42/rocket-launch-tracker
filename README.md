@@ -25,7 +25,11 @@ A full-stack web application to track rocket launches worldwide using the Launch
 - TanStack Query (React Query)
 - date-fns
 
+### How to connect to Prod
+- ssh -i ~/.ssh/LightsailDefaultKey-us-west-2.pem ubuntu@16.148.114.21
+
 ## Quick Start
+
 
 ### Prerequisites
 
