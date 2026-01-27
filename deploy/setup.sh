@@ -40,13 +40,14 @@ set -u  # Exit on undefined variable
 ###############################################################################
 
 # Repository configuration
-REPO_URL="https://github.com/yourusername/rocket-launches.git"  # UPDATE THIS!
+REPO_URL="https://github.com/davek42/rocket-launch-tracker.git"
 DEPLOY_USER="ubuntu"
 DEPLOY_DIR="/var/www/rocket-launches"
 
 # Application configuration
 APP_NAME="rocket-launches-api"
 BACKEND_PORT=3005
+#TODO
 DOMAIN="yourdomain.com"  # UPDATE THIS for SSL!
 
 # Paths
@@ -559,6 +560,8 @@ show_next_steps() {
     if [ "$DOMAIN" != "yourdomain.com" ]; then
         echo "  Domain:    http://$DOMAIN/ (after DNS configuration)"
         echo "  HTTPS:     https://$DOMAIN/ (after SSL setup)"
+    else
+        echo "Skip domain setup"
     fi
     echo ""
     echo "=============================================================================="
