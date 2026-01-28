@@ -353,6 +353,162 @@ export function queryLaunches(filters = {}) {
 }
 
 /**
+ * 🌍 Map country codes to country names
+ * @param {string} code - ISO 3-letter country code
+ * @returns {string} - Country name (USA stays as USA)
+ */
+function getCountryName(code) {
+  // USA stays as USA
+  if (code === 'USA') return 'USA';
+
+  // Handle unknown country
+  if (code === '???') return 'Unknown';
+
+  const countryMap = {
+    'CHN': 'China',
+    'RUS': 'Russia',
+    'IND': 'India',
+    'JPN': 'Japan',
+    'FRA': 'France',
+    'GUF': 'French Guiana',
+    'NZL': 'New Zealand',
+    'IRN': 'Iran',
+    'ISR': 'Israel',
+    'KOR': 'South Korea',
+    'PRK': 'North Korea',
+    'ITA': 'Italy',
+    'BRA': 'Brazil',
+    'AUS': 'Australia',
+    'GBR': 'United Kingdom',
+    'DEU': 'Germany',
+    'CAN': 'Canada',
+    'ESP': 'Spain',
+    'MEX': 'Mexico',
+    'ARG': 'Argentina',
+    'PAK': 'Pakistan',
+    'TUR': 'Turkey',
+    'IDN': 'Indonesia',
+    'SAU': 'Saudi Arabia',
+    'IRQ': 'Iraq',
+    'KAZ': 'Kazakhstan',
+    'UKR': 'Ukraine',
+    'NOR': 'Norway',
+    'SWE': 'Sweden',
+    'DNK': 'Denmark',
+    'FIN': 'Finland',
+    'POL': 'Poland',
+    'NLD': 'Netherlands',
+    'BEL': 'Belgium',
+    'CHE': 'Switzerland',
+    'AUT': 'Austria',
+    'PRT': 'Portugal',
+    'GRC': 'Greece',
+    'CZE': 'Czech Republic',
+    'ROU': 'Romania',
+    'HUN': 'Hungary',
+    'BGR': 'Bulgaria',
+    'SVK': 'Slovakia',
+    'HRV': 'Croatia',
+    'SRB': 'Serbia',
+    'SVN': 'Slovenia',
+    'LTU': 'Lithuania',
+    'LVA': 'Latvia',
+    'EST': 'Estonia',
+    'MKD': 'North Macedonia',
+    'ALB': 'Albania',
+    'BIH': 'Bosnia and Herzegovina',
+    'MNE': 'Montenegro',
+    'KGZ': 'Kyrgyzstan',
+    'TJK': 'Tajikistan',
+    'TKM': 'Turkmenistan',
+    'UZB': 'Uzbekistan',
+    'GEO': 'Georgia',
+    'ARM': 'Armenia',
+    'AZE': 'Azerbaijan',
+    'ARE': 'United Arab Emirates',
+    'QAT': 'Qatar',
+    'KWT': 'Kuwait',
+    'OMN': 'Oman',
+    'BHR': 'Bahrain',
+    'JOR': 'Jordan',
+    'LBN': 'Lebanon',
+    'SYR': 'Syria',
+    'YEM': 'Yemen',
+    'AFG': 'Afghanistan',
+    'MAR': 'Morocco',
+    'DZA': 'Algeria',
+    'TUN': 'Tunisia',
+    'LBY': 'Libya',
+    'EGY': 'Egypt',
+    'SDN': 'Sudan',
+    'ETH': 'Ethiopia',
+    'KEN': 'Kenya',
+    'TZA': 'Tanzania',
+    'UGA': 'Uganda',
+    'ZAF': 'South Africa',
+    'NGA': 'Nigeria',
+    'GHA': 'Ghana',
+    'CIV': 'Ivory Coast',
+    'SEN': 'Senegal',
+    'MLI': 'Mali',
+    'NER': 'Niger',
+    'TCD': 'Chad',
+    'CAF': 'Central African Republic',
+    'CMR': 'Cameroon',
+    'COG': 'Republic of the Congo',
+    'COD': 'Democratic Republic of the Congo',
+    'GAB': 'Gabon',
+    'GNQ': 'Equatorial Guinea',
+    'AGO': 'Angola',
+    'MOZ': 'Mozambique',
+    'ZMB': 'Zambia',
+    'ZWE': 'Zimbabwe',
+    'BWA': 'Botswana',
+    'NAM': 'Namibia',
+    'MDG': 'Madagascar',
+    'MUS': 'Mauritius',
+    'SYC': 'Seychelles',
+    'VNM': 'Vietnam',
+    'THA': 'Thailand',
+    'MYS': 'Malaysia',
+    'SGP': 'Singapore',
+    'PHL': 'Philippines',
+    'MMR': 'Myanmar',
+    'KHM': 'Cambodia',
+    'LAO': 'Laos',
+    'BGD': 'Bangladesh',
+    'LKA': 'Sri Lanka',
+    'NPL': 'Nepal',
+    'BTN': 'Bhutan',
+    'MNG': 'Mongolia',
+    'TWN': 'Taiwan',
+    'HKG': 'Hong Kong',
+    'MAC': 'Macau',
+    'GUM': 'Guam',
+    'PRI': 'Puerto Rico',
+    'VIR': 'U.S. Virgin Islands',
+    'ASM': 'American Samoa',
+    'MHL': 'Marshall Islands',
+    'FSM': 'Micronesia',
+    'PLW': 'Palau',
+    'KIR': 'Kiribati',
+    'GRL': 'Greenland',
+    'ISL': 'Iceland',
+    'IRL': 'Ireland',
+    'MLT': 'Malta',
+    'CYP': 'Cyprus',
+    'LUX': 'Luxembourg',
+    'MCO': 'Monaco',
+    'LIE': 'Liechtenstein',
+    'AND': 'Andorra',
+    'SMR': 'San Marino',
+    'VAT': 'Vatican City'
+  };
+
+  return countryMap[code] || code; // Fallback to code if not found
+}
+
+/**
  * 📊 Get filter options for dropdowns
  * @returns {Object} - Filter options with counts
  */
@@ -368,18 +524,30 @@ export function getFilterOptions() {
     ORDER BY count DESC
   `).all();
 
-  const countries = db.prepare(`
+  const countriesRaw = db.prepare(`
     SELECT
       location_country_code as code,
-      location_country_code as name,
       COUNT(*) as count
     FROM launches
     WHERE location_country_code IS NOT NULL
     GROUP BY location_country_code
-    ORDER BY count DESC
   `).all();
 
-  const locations = db.prepare(`
+  // Map country codes to names
+  const countriesMapped = countriesRaw.map(country => ({
+    code: country.code,
+    name: getCountryName(country.code),
+    count: country.count
+  }));
+
+  // Sort alphabetically by name, but keep USA at the top
+  const countries = countriesMapped.sort((a, b) => {
+    if (a.code === 'USA') return -1;
+    if (b.code === 'USA') return 1;
+    return a.name.localeCompare(b.name);
+  });
+
+  const locationsRaw = db.prepare(`
     SELECT
       location_name as name,
       location_country_code as countryCode,
@@ -387,8 +555,10 @@ export function getFilterOptions() {
     FROM launches
     WHERE location_name IS NOT NULL
     GROUP BY location_name, location_country_code
-    ORDER BY count DESC
   `).all();
+
+  // Sort locations alphabetically by name
+  const locations = locationsRaw.sort((a, b) => a.name.localeCompare(b.name));
 
   const statuses = db.prepare(`
     SELECT

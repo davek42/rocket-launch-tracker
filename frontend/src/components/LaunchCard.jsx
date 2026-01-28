@@ -41,16 +41,25 @@ export default function LaunchCard({ launch }) {
       </div>
 
       <div className="space-y-3">
-        <div className="flex items-center text-gray-600">
-          <Calendar className="w-5 h-5 mr-2 flex-shrink-0" />
-          <div>
-            <p className="font-semibold">{format(launchDate, 'PPP p')}</p>
-            {isUpcoming && (
-              <p className="text-sm text-blue-600">
-                T-{formatDistanceToNow(launchDate)}
-              </p>
-            )}
+        <div className="flex items-center justify-between text-gray-600">
+          <div className="flex items-center">
+            <Calendar className="w-5 h-5 mr-2 flex-shrink-0" />
+            <div>
+              <p className="font-semibold">{format(launchDate, 'PPP p')}</p>
+              {isUpcoming && (
+                <p className="text-sm text-blue-600">
+                  T-{formatDistanceToNow(launchDate)}
+                </p>
+              )}
+            </div>
           </div>
+          <button
+            onClick={handleDownloadICS}
+            className="ml-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex-shrink-0"
+            title="Add to Calendar"
+          >
+            <Download className="w-4 h-4" />
+          </button>
         </div>
 
         <div className="flex items-center text-gray-600">
@@ -90,16 +99,6 @@ export default function LaunchCard({ launch }) {
             {launch.mission.description}
           </p>
         )}
-      </div>
-
-      <div className="mt-4 pt-4 border-t border-gray-200">
-        <button
-          onClick={handleDownloadICS}
-          className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <Download className="w-4 h-4" />
-          <span>Add to Calendar</span>
-        </button>
       </div>
     </div>
   );
