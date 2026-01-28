@@ -1,8 +1,8 @@
-# 🔧 Operations Guide - Rocket Launch Tracker
+# 🔧 Operations Guide - Rocket Launch Finder
 
 **Production URL:** http://16.148.114.211/
 **Server:** AWS Lightsail Ubuntu 24.04 LTS
-**Last Updated:** January 27, 2026
+**Last Updated:** January 28, 2026
 
 ---
 
@@ -18,6 +18,7 @@
 - [Backup Procedures](#-backup-procedures)
 - [Emergency Recovery](#-emergency-recovery)
 - [System Information](#-system-information)
+- [Re-deployment](#-re-deployment-pushing-code-updates)
 
 ---
 
@@ -79,7 +80,7 @@ cat > ~/check-health.sh << 'EOF'
 #!/bin/bash
 
 echo "=================================="
-echo "🚀 Rocket Launch Tracker Health Check"
+echo "🚀 Rocket Launch Finder Health Check"
 echo "=================================="
 echo ""
 
@@ -712,6 +713,120 @@ sudo systemctl restart nginx
 
 ---
 
+## 🚀 Re-deployment (Pushing Code Updates)
+
+When you have new code changes to deploy to production, follow these steps:
+
+### Full Deployment Process
+
+```bash
+# 1. Push changes to GitHub (from local machine)
+git push origin main
+
+# 2. Connect to AWS server
+ssh -i ~/.ssh/LightsailDefaultKey-us-west-2.pem ubuntu@16.148.114.211
+
+# 3. Navigate to app directory
+cd /var/www/rocket-launches
+
+# 4. Pull latest code
+git pull origin main
+
+# 5. Update backend dependencies (if package.json changed)
+cd backend
+/home/ubuntu/.bun/bin/bun install
+
+# 6. Update frontend dependencies (if package.json changed)
+cd ../frontend
+/home/ubuntu/.bun/bin/bun install
+
+# 7. Rebuild frontend (REQUIRED!)
+/home/ubuntu/.bun/bin/bun run build
+
+# 8. Restart backend
+pm2 restart rocket-launches-api
+
+# 9. Verify everything is working
+pm2 status
+curl http://localhost:3005/health
+
+# 10. Test in browser
+# Visit: http://16.148.114.211/
+```
+
+### Quick Deploy (No Dependency Changes)
+
+If you only changed source code (no `package.json` modifications):
+
+```bash
+# From local machine:
+git push origin main
+
+# On server:
+ssh -i ~/.ssh/LightsailDefaultKey-us-west-2.pem ubuntu@16.148.114.211
+cd /var/www/rocket-launches && git pull origin main
+cd frontend && /home/ubuntu/.bun/bin/bun run build
+pm2 restart rocket-launches-api
+pm2 status
+```
+
+### One-Liner for Quick Deploy
+
+```bash
+ssh -i ~/.ssh/LightsailDefaultKey-us-west-2.pem ubuntu@16.148.114.211 "cd /var/www/rocket-launches && git pull origin main && cd frontend && /home/ubuntu/.bun/bin/bun run build && pm2 restart rocket-launches-api && pm2 status"
+```
+
+### Important Notes
+
+- **Step 7 is critical**: Always rebuild the frontend with `bun run build` so static files in `dist/` are updated
+- **Frontend changes**: Any changes to React components, styles, or frontend code require a frontend rebuild
+- **Backend changes**: Backend code changes require a PM2 restart (Step 8)
+- **Database schema changes**: If you modified the database schema, you may need to run migrations or rebuild the database
+- **Environment variables**: If you added new `.env` variables, update them on the server before restarting
+
+### Troubleshooting Deployment
+
+**If the site doesn't reflect changes:**
+```bash
+# Clear browser cache or try incognito mode
+# Verify frontend was rebuilt:
+ls -lh /var/www/rocket-launches/frontend/dist/
+
+# Check build timestamp
+stat /var/www/rocket-launches/frontend/dist/index.html
+
+# Force rebuild
+cd /var/www/rocket-launches/frontend
+rm -rf dist
+/home/ubuntu/.bun/bin/bun run build
+```
+
+**If backend errors after deployment:**
+```bash
+# Check logs for errors
+pm2 logs rocket-launches-api --lines 50
+
+# Verify backend started
+pm2 status
+
+# If needed, restart with fresh state
+pm2 restart rocket-launches-api --update-env
+```
+
+**If you need to rollback:**
+```bash
+# On server, go back to previous commit
+cd /var/www/rocket-launches
+git log --oneline -5  # See recent commits
+git checkout <previous-commit-hash>
+
+# Rebuild and restart
+cd frontend && /home/ubuntu/.bun/bin/bun run build
+pm2 restart rocket-launches-api
+```
+
+---
+
 ## 🆘 Emergency Contacts
 
 - **Repository Issues:** https://github.com/davek42/rocket-launch-tracker/issues
@@ -730,6 +845,6 @@ sudo systemctl restart nginx
 
 ---
 
-**Last Updated:** January 27, 2026
+**Last Updated:** January 28, 2026
 **Maintained By:** David K
-**Version:** 1.0
+**Version:** 1.1
