@@ -45,7 +45,22 @@ export default function SearchFilters({ filters, filterOptions, onFilterChange, 
   };
 
   const applyFilters = () => {
-    onFilterChange(localFilters);
+    // Convert local date inputs to UTC datetime for backend filtering
+    const filtersToApply = { ...localFilters };
+
+    if (filtersToApply.dateFrom) {
+      // Start of day in local timezone (00:00:00), converted to UTC
+      const fromDate = new Date(filtersToApply.dateFrom + 'T00:00:00');
+      filtersToApply.dateFrom = fromDate.toISOString();
+    }
+
+    if (filtersToApply.dateTo) {
+      // End of day in local timezone (23:59:59), converted to UTC
+      const toDate = new Date(filtersToApply.dateTo + 'T23:59:59');
+      filtersToApply.dateTo = toDate.toISOString();
+    }
+
+    onFilterChange(filtersToApply);
   };
 
   const clearFilters = () => {
