@@ -8,9 +8,9 @@ export default function Header({ onAboutClick }) {
           <div>
             <div className="flex items-center space-x-3">
               <Rocket className="w-8 h-8" />
-              <h1 className="text-3xl font-bold">Rocket Launch Tracker</h1>
+              <h1 className="text-3xl font-bold">Rocket Launch Finder</h1>
             </div>
-            <p className="mt-2 text-blue-100">Track rocket launches from around the world</p>
+            <p className="mt-2 text-blue-100">Find rocket launches from around the world</p>
           </div>
           <button
             onClick={onAboutClick}

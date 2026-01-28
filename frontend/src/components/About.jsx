@@ -11,7 +11,7 @@ export default function About({ isOpen, onClose }) {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Rocket className="w-8 h-8" />
-              <h2 className="text-2xl font-bold">About Rocket Launch Tracker</h2>
+              <h2 className="text-2xl font-bold">About Rocket Launch Finder</h2>
             </div>
             <button
               onClick={onClose}
@@ -27,7 +27,7 @@ export default function About({ isOpen, onClose }) {
           {/* Description */}
           <div>
             <p className="text-gray-700 leading-relaxed">
-              A web application to track rocket launches worldwide, featuring over 7,700 historical and upcoming launches with search, filter, and calendar export capabilities.
+              A web application to find rocket launches worldwide, featuring over 7,700 historical and upcoming launches with search, filter, and calendar export capabilities.
             </p>
           </div>
 

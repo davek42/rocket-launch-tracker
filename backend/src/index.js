@@ -1,5 +1,5 @@
 /**
- * 🚀 Rocket Launch Tracker - Backend API Server
+ * 🚀 Rocket Launch Finder - Backend API Server
  */
 
 import express from 'express';
@@ -67,7 +67,7 @@ app.use((err, req, res, next) => {
 
 // Start server
 app.listen(config.port, () => {
-  logger.rocket(`🚀 Rocket Launch Tracker API running on port ${config.port}`);
+  logger.rocket(`🚀 Rocket Launch Finder API running on port ${config.port}`);
   logger.info(`Environment: ${config.nodeEnv}`);
   logger.info(`Database: ${config.dbPath}`);
   logger.info(`\nAPI endpoints:`);
