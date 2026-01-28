@@ -6,19 +6,35 @@ export default function SearchFilters({ filters, filterOptions, onFilterChange, 
     search: '',
     provider: '',
     country: '',
+    state: '',
     location: '',
     rocket: '',
-    status: ''
+    status: '',
+    dateFrom: '',
+    dateTo: ''
   });
 
   const handleInputChange = (key, value) => {
-    // If changing country, clear location if it doesn't match the new country
+    // If changing country, clear state and location if they don't match the new country
     if (key === 'country') {
       const newFilters = { ...localFilters, [key]: value };
-      // Clear location if it's set and doesn't belong to the new country
+      // Clear state and location when country changes
+      if (value !== 'USA') {
+        newFilters.state = '';
+      }
       if (localFilters.location && value) {
         const currentLocation = filterOptions.locations?.find(loc => loc.name === localFilters.location);
         if (currentLocation && currentLocation.countryCode !== value) {
+          newFilters.location = '';
+        }
+      }
+      setLocalFilters(newFilters);
+    } else if (key === 'state') {
+      // If changing state, clear location if it doesn't match the new state
+      const newFilters = { ...localFilters, [key]: value };
+      if (localFilters.location && value) {
+        // Check if current location matches the new state
+        if (!localFilters.location.includes(`, ${value},`)) {
           newFilters.location = '';
         }
       }
@@ -37,9 +53,12 @@ export default function SearchFilters({ filters, filterOptions, onFilterChange, 
       search: '',
       provider: '',
       country: '',
+      state: '',
       location: '',
       rocket: '',
       status: '',
+      dateFrom: '',
+      dateTo: '',
       upcoming: true
     };
     setLocalFilters(cleared);
@@ -110,18 +129,41 @@ export default function SearchFilters({ filters, filterOptions, onFilterChange, 
           />
         </div>
 
-        {/* Provider */}
+        {/* Date Range */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Date Range
+          </label>
+          <div className="space-y-2">
+            <input
+              type="date"
+              value={localFilters.dateFrom}
+              onChange={(e) => handleInputChange('dateFrom', e.target.value)}
+              placeholder="From"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            />
+            <input
+              type="date"
+              value={localFilters.dateTo}
+              onChange={(e) => handleInputChange('dateTo', e.target.value)}
+              placeholder="To"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            />
+          </div>
+        </div>
+
+        {/* Launch Agency/Company */}
         {filterOptions.providers && (
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Provider
+              Launch Agency/Company
             </label>
             <select
               value={localFilters.provider}
               onChange={(e) => handleInputChange('provider', e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="">All Providers</option>
+              <option value="">All Agencies</option>
               {filterOptions.providers.slice(0, 20).map((provider) => (
                 <option key={provider.name} value={provider.name}>
                   {provider.name} ({provider.count})
@@ -152,6 +194,27 @@ export default function SearchFilters({ filters, filterOptions, onFilterChange, 
           </div>
         )}
 
+        {/* State (USA only) */}
+        {localFilters.country === 'USA' && filterOptions.states && (
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              State
+            </label>
+            <select
+              value={localFilters.state}
+              onChange={(e) => handleInputChange('state', e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">All States</option>
+              {filterOptions.states.map((state) => (
+                <option key={state.code} value={state.code}>
+                  {state.name} ({state.count})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {/* Location */}
         {filterOptions.locations && (
           <div>
@@ -165,7 +228,11 @@ export default function SearchFilters({ filters, filterOptions, onFilterChange, 
             >
               <option value="">All Locations</option>
               {filterOptions.locations
-                .filter(loc => !localFilters.country || loc.countryCode === localFilters.country)
+                .filter(loc => {
+                  if (localFilters.country && loc.countryCode !== localFilters.country) return false;
+                  if (localFilters.state && !loc.name.includes(`, ${localFilters.state},`)) return false;
+                  return true;
+                })
                 .slice(0, 30)
                 .map((location) => (
                   <option key={location.name} value={location.name}>

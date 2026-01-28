@@ -236,6 +236,7 @@ export function queryLaunches(filters = {}) {
     past = false,
     provider,
     country,
+    state,
     location,
     rocket,
     status,
@@ -278,6 +279,12 @@ export function queryLaunches(filters = {}) {
   if (country) {
     whereClauses.push('location_country_code = ?');
     params.push(country);
+  }
+
+  // State filter (for USA locations)
+  if (state) {
+    whereClauses.push('location_name LIKE ?');
+    params.push(`%, ${state},%`);
   }
 
   // Location filter
@@ -404,12 +411,47 @@ export function getFilterOptions() {
     ORDER BY count DESC
   `).all();
 
+  // Extract US states from location_name (format: "City, STATE, Country")
+  // Only for locations in USA
+  const usLocations = db.prepare(`
+    SELECT location_name as name
+    FROM launches
+    WHERE location_country_code = 'USA' AND location_name IS NOT NULL
+    GROUP BY location_name
+  `).all();
+
+  const statesMap = new Map();
+  for (const loc of usLocations) {
+    // Extract state from "City, STATE, Country" format
+    const parts = loc.name.split(',').map(p => p.trim());
+    if (parts.length >= 2) {
+      const stateCode = parts[1]; // Second part is the state
+      if (stateCode && stateCode.length === 2) { // State codes are 2 letters
+        if (!statesMap.has(stateCode)) {
+          statesMap.set(stateCode, 0);
+        }
+        // Count occurrences
+        const count = db.prepare(`
+          SELECT COUNT(*) as count
+          FROM launches
+          WHERE location_name LIKE ?
+        `).get(`%, ${stateCode},%`).count;
+        statesMap.set(stateCode, count);
+      }
+    }
+  }
+
+  const states = Array.from(statesMap.entries())
+    .map(([code, count]) => ({ code, name: code, count }))
+    .sort((a, b) => b.count - a.count);
+
   return {
     providers,
     countries,
     locations,
     statuses,
-    rocketFamilies
+    rocketFamilies,
+    states
   };
 }
 
