@@ -60,6 +60,12 @@ export default function SearchFilters({ filters, filterOptions, onFilterChange, 
       filtersToApply.dateTo = toDate.toISOString();
     }
 
+    // If date range is set, clear upcoming/past flags
+    if (filtersToApply.dateFrom || filtersToApply.dateTo) {
+      filtersToApply.upcoming = undefined;
+      filtersToApply.past = undefined;
+    }
+
     onFilterChange(filtersToApply);
   };
 
@@ -84,6 +90,9 @@ export default function SearchFilters({ filters, filterOptions, onFilterChange, 
     onFilterChange({ upcoming: value, past: !value });
   };
 
+  // Check if date range is active (either dateFrom or dateTo is set)
+  const isDateRangeActive = !!(localFilters.dateFrom || localFilters.dateTo);
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center justify-between mb-6">
@@ -101,35 +110,6 @@ export default function SearchFilters({ filters, filterOptions, onFilterChange, 
       </div>
 
       <div className="space-y-4">
-        {/* Upcoming/Past Toggle */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Launch Time
-          </label>
-          <div className="flex space-x-2">
-            <button
-              onClick={() => toggleUpcoming(true)}
-              className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                filters.upcoming
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              Upcoming
-            </button>
-            <button
-              onClick={() => toggleUpcoming(false)}
-              className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                filters.past
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              Past
-            </button>
-          </div>
-        </div>
-
         {/* Search */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -144,34 +124,77 @@ export default function SearchFilters({ filters, filterOptions, onFilterChange, 
           />
         </div>
 
-        {/* Date Range */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Date Range
-          </label>
-          <div className="space-y-2">
-            <input
-              type="date"
-              value={localFilters.dateFrom}
-              onChange={(e) => handleInputChange('dateFrom', e.target.value)}
-              placeholder="From"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-            />
-            <input
-              type="date"
-              value={localFilters.dateTo}
-              onChange={(e) => handleInputChange('dateTo', e.target.value)}
-              placeholder="To"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-            />
+        {/* Time Filters Group */}
+        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+          {/* Upcoming/Past Toggle */}
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Launch Time
+              {isDateRangeActive && (
+                <span className="text-xs text-gray-500 ml-2 font-normal">
+                  (disabled when date range is set)
+                </span>
+              )}
+            </label>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => !isDateRangeActive && toggleUpcoming(true)}
+                disabled={isDateRangeActive}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  isDateRangeActive
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : filters.upcoming
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                Upcoming
+              </button>
+              <button
+                onClick={() => !isDateRangeActive && toggleUpcoming(false)}
+                disabled={isDateRangeActive}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  isDateRangeActive
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : filters.past
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                Past
+              </button>
+            </div>
+          </div>
+
+          {/* Date Range */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Date Range
+            </label>
+            <div className="space-y-2">
+              <input
+                type="date"
+                value={localFilters.dateFrom}
+                onChange={(e) => handleInputChange('dateFrom', e.target.value)}
+                placeholder="From"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              />
+              <input
+                type="date"
+                value={localFilters.dateTo}
+                onChange={(e) => handleInputChange('dateTo', e.target.value)}
+                placeholder="To"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Launch Agency/Company */}
+        {/* Launch Agency or Company */}
         {filterOptions.providers && (
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Launch Agency/Company
+              Launch Agency or Company
             </label>
             <select
               value={localFilters.provider}
@@ -188,75 +211,78 @@ export default function SearchFilters({ filters, filterOptions, onFilterChange, 
           </div>
         )}
 
-        {/* Country */}
-        {filterOptions.countries && (
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Country
-            </label>
-            <select
-              value={localFilters.country}
-              onChange={(e) => handleInputChange('country', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">All Countries</option>
-              {filterOptions.countries.slice(0, 20).map((country) => (
-                <option key={country.code} value={country.code}>
-                  {country.code} ({country.count})
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {/* State (USA only) */}
-        {localFilters.country === 'USA' && filterOptions.states && (
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              State
-            </label>
-            <select
-              value={localFilters.state}
-              onChange={(e) => handleInputChange('state', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">All States</option>
-              {filterOptions.states.map((state) => (
-                <option key={state.code} value={state.code}>
-                  {state.name} ({state.count})
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {/* Location */}
-        {filterOptions.locations && (
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Launch Location
-            </label>
-            <select
-              value={localFilters.location}
-              onChange={(e) => handleInputChange('location', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">All Locations</option>
-              {filterOptions.locations
-                .filter(loc => {
-                  if (localFilters.country && loc.countryCode !== localFilters.country) return false;
-                  if (localFilters.state && !loc.name.includes(`, ${localFilters.state},`)) return false;
-                  return true;
-                })
-                .slice(0, 30)
-                .map((location) => (
-                  <option key={location.name} value={location.name}>
-                    {location.name} ({location.count})
+        {/* Location Filters Group */}
+        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+          {/* Country */}
+          {filterOptions.countries && (
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Country
+              </label>
+              <select
+                value={localFilters.country}
+                onChange={(e) => handleInputChange('country', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">All Countries</option>
+                {filterOptions.countries.slice(0, 20).map((country) => (
+                  <option key={country.code} value={country.code}>
+                    {country.name} ({country.count})
                   </option>
                 ))}
-            </select>
-          </div>
-        )}
+              </select>
+            </div>
+          )}
+
+          {/* State (USA only) */}
+          {localFilters.country === 'USA' && filterOptions.states && (
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                State
+              </label>
+              <select
+                value={localFilters.state}
+                onChange={(e) => handleInputChange('state', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">All States</option>
+                {filterOptions.states.map((state) => (
+                  <option key={state.code} value={state.code}>
+                    {state.name} ({state.count})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Location */}
+          {filterOptions.locations && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Launch Location
+              </label>
+              <select
+                value={localFilters.location}
+                onChange={(e) => handleInputChange('location', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">All Locations</option>
+                {filterOptions.locations
+                  .filter(loc => {
+                    if (localFilters.country && loc.countryCode !== localFilters.country) return false;
+                    if (localFilters.state && !loc.name.includes(`, ${localFilters.state},`)) return false;
+                    return true;
+                  })
+                  .slice(0, 30)
+                  .map((location) => (
+                    <option key={location.name} value={location.name}>
+                      {location.name} ({location.count})
+                    </option>
+                  ))}
+              </select>
+            </div>
+          )}
+        </div>
 
         {/* Status */}
         {filterOptions.statuses && (
