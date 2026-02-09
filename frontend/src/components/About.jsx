@@ -144,6 +144,9 @@ export default function About({ isOpen, onClose }) {
             <p className="text-sm text-gray-500 text-center">
               Built with data from TheSpaceDevs and the SpaceX community
             </p>
+            <p className="text-xs text-gray-400 text-center mt-1">
+              v{__APP_VERSION__} ({__GIT_HASH__})
+            </p>
           </div>
         </div>
       </div>
