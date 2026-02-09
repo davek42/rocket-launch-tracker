@@ -67,6 +67,30 @@ export async function fetchStats() {
 }
 
 /**
+ * Fetch chart data (aggregated launch counts)
+ */
+export async function fetchChartData(filters = {}, groupBy = 'year') {
+  const params = new URLSearchParams();
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      params.append(key, value);
+    }
+  });
+
+  params.append('groupBy', groupBy);
+
+  const url = `${API_BASE_URL}/launches/chart?${params.toString()}`;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch chart data');
+  }
+
+  return response.json();
+}
+
+/**
  * Get ICS download URL for a launch
  */
 export function getICSDownloadUrl(id) {

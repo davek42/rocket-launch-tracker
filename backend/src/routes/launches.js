@@ -5,6 +5,7 @@
 import express from 'express';
 import {
   queryLaunches,
+  queryLaunchCounts,
   getLaunchById,
   getStats
 } from '../db/database.js';
@@ -171,6 +172,64 @@ router.get('/ics', (req, res) => {
     res.send(icsContent);
   } catch (error) {
     logger.error('Error generating bulk ICS:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/launches/chart
+ * Get aggregated launch counts for chart visualization
+ */
+router.get('/chart', (req, res) => {
+  try {
+    const {
+      upcoming,
+      past,
+      provider,
+      country,
+      state,
+      location,
+      rocket,
+      status,
+      from,
+      to,
+      dateFrom,
+      dateTo,
+      search,
+      groupBy
+    } = req.query;
+
+    const filters = {
+      upcoming: upcoming === 'true',
+      past: past === 'true',
+      provider,
+      country,
+      state,
+      location,
+      rocket,
+      status,
+      from: dateFrom || from,
+      to: dateTo || to,
+      search
+    };
+
+    const validGroupBy = ['year', 'month', 'provider', 'country'];
+    const group = validGroupBy.includes(groupBy) ? groupBy : 'year';
+
+    const results = queryLaunchCounts(filters, group);
+
+    res.json({
+      success: true,
+      data: {
+        groupBy: group,
+        results
+      }
+    });
+  } catch (error) {
+    logger.error('❌ Error fetching chart data:', error);
     res.status(500).json({
       success: false,
       error: error.message

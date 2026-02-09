@@ -226,11 +226,11 @@ export function getLaunchById(id) {
 }
 
 /**
- * 📋 Query launches with filters
- * @param {Object} filters - Query filters and pagination
- * @returns {Object} - { launches: [], total: number }
+ * 🔧 Build WHERE clause from filters (shared by queryLaunches and queryLaunchCounts)
+ * @param {Object} filters - Query filters
+ * @returns {{ whereClause: string, params: any[] }}
  */
-export function queryLaunches(filters = {}) {
+function buildWhereClause(filters = {}) {
   const {
     upcoming = false,
     past = false,
@@ -242,11 +242,7 @@ export function queryLaunches(filters = {}) {
     status,
     from,
     to,
-    search,
-    limit = 20,
-    offset = 0,
-    sort = 'net',
-    order = 'asc'
+    search
   } = filters;
 
   const whereClauses = [];
@@ -317,9 +313,27 @@ export function queryLaunches(filters = {}) {
     params.push(searchPattern, searchPattern, searchPattern, searchPattern);
   }
 
-  const whereClause = whereClauses.length > 0
+  const clause = whereClauses.length > 0
     ? `WHERE ${whereClauses.join(' AND ')}`
     : '';
+
+  return { whereClause: clause, params };
+}
+
+/**
+ * 📋 Query launches with filters
+ * @param {Object} filters - Query filters and pagination
+ * @returns {Object} - { launches: [], total: number }
+ */
+export function queryLaunches(filters = {}) {
+  const {
+    limit = 20,
+    offset = 0,
+    sort = 'net',
+    order = 'asc'
+  } = filters;
+
+  const { whereClause, params } = buildWhereClause(filters);
 
   // Validate sort field
   const validSortFields = ['net', 'provider_name', 'location_name', 'rocket_name'];
@@ -350,6 +364,67 @@ export function queryLaunches(filters = {}) {
   const launches = dataStmt.all(...params, limit, offset);
 
   return { launches, total };
+}
+
+/**
+ * 📊 Query launch counts grouped by a dimension (for chart data)
+ * @param {Object} filters - Same filters as queryLaunches
+ * @param {string} groupBy - 'year' | 'month' | 'provider' | 'country'
+ * @returns {Array} - [{ period/label, count }, ...]
+ */
+export function queryLaunchCounts(filters = {}, groupBy = 'year') {
+  const { whereClause, params } = buildWhereClause(filters);
+
+  let selectExpr, groupExpr, orderExpr, labelKey;
+
+  switch (groupBy) {
+    case 'month':
+      selectExpr = "strftime('%Y-%m', net) as period";
+      groupExpr = "strftime('%Y-%m', net)";
+      orderExpr = "period ASC";
+      labelKey = 'period';
+      break;
+    case 'provider':
+      selectExpr = "provider_name as label";
+      groupExpr = "provider_name";
+      orderExpr = "count DESC";
+      labelKey = 'label';
+      break;
+    case 'country':
+      selectExpr = "location_country_code as label";
+      groupExpr = "location_country_code";
+      orderExpr = "count DESC";
+      labelKey = 'label';
+      break;
+    case 'year':
+    default:
+      selectExpr = "strftime('%Y', net) as period";
+      groupExpr = "strftime('%Y', net)";
+      orderExpr = "period ASC";
+      labelKey = 'period';
+      break;
+  }
+
+  const stmt = db.prepare(`
+    SELECT ${selectExpr}, COUNT(*) as count
+    FROM launches
+    ${whereClause}
+    GROUP BY ${groupExpr}
+    HAVING ${labelKey} IS NOT NULL
+    ORDER BY ${orderExpr}
+  `);
+
+  const results = stmt.all(...params);
+
+  // Map country codes to readable names
+  if (groupBy === 'country') {
+    return results.map(row => ({
+      label: getCountryName(row.label),
+      count: row.count
+    }));
+  }
+
+  return results;
 }
 
 /**

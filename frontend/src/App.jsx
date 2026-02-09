@@ -3,12 +3,14 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchLaunches, fetchFilters, getBulkICSDownloadUrl } from './utils/api';
 import Header from './components/Header';
 import LaunchList from './components/LaunchList';
+import StatsView from './components/StatsView';
 import SearchFilters from './components/SearchFilters';
 import About from './components/About';
 import { Rocket } from 'lucide-react';
 
 function App() {
   const [showAbout, setShowAbout] = useState(false);
+  const [currentView, setCurrentView] = useState('launches');
   const [filters, setFilters] = useState({
     upcoming: true,
     limit: 20,
@@ -62,7 +64,12 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Header onAboutClick={() => setShowAbout(true)} />
+      <Header
+        onAboutClick={() => setShowAbout(true)}
+        onStatsClick={() => setCurrentView('stats')}
+        onHomeClick={() => setCurrentView('launches')}
+        currentView={currentView}
+      />
 
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -76,14 +83,18 @@ function App() {
             />
           </aside>
 
-          {/* Launches List */}
+          {/* Main Content */}
           <div className="lg:col-span-3">
-            <LaunchList
-              launches={data?.data?.launches || []}
-              pagination={data?.data?.pagination || {}}
-              isLoading={isLoading}
-              onPageChange={handlePageChange}
-            />
+            {currentView === 'stats' ? (
+              <StatsView filters={filters} />
+            ) : (
+              <LaunchList
+                launches={data?.data?.launches || []}
+                pagination={data?.data?.pagination || {}}
+                isLoading={isLoading}
+                onPageChange={handlePageChange}
+              />
+            )}
           </div>
         </div>
       </main>
