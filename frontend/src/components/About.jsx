@@ -11,7 +11,7 @@ export default function About({ isOpen, onClose }) {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Rocket className="w-8 h-8" />
-              <h2 className="text-2xl font-bold">About Rocket Launch Finder</h2>
+              <h2 className="text-2xl font-bold">About World Rocket Launch</h2>
             </div>
             <button
               onClick={onClose}

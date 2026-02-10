@@ -63,7 +63,7 @@ function launchToICSEvent(launch) {
 
   // Build event object
   const event = {
-    uid: `${launch.id}@rocketlaunch.finder`,
+    uid: `${launch.id}@worldrocketlaunch.com`,
     start: dateToICSArray(startTime),
     end: dateToICSArray(endTime),
     title: launch.name || 'Rocket Launch',
@@ -71,7 +71,7 @@ function launchToICSEvent(launch) {
     location: launch.location_name || launch.pad_name || 'Unknown Location',
     status,
     busyStatus: 'FREE',
-    productId: '-//Rocket Launch Finder//EN',
+    productId: '-//World Rocket Launch//EN',
     calName: 'Rocket Launches'
   };
 

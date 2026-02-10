@@ -8,9 +8,9 @@ export default function Header({ onAboutClick, onStatsClick, onHomeClick, curren
           <div>
             <button onClick={onHomeClick} className="flex items-center space-x-3 hover:opacity-90 transition-opacity">
               <Rocket className="w-8 h-8" />
-              <h1 className="text-3xl font-bold">Rocket Launch Finder</h1>
+              <h1 className="text-3xl font-bold">World Rocket Launch</h1>
             </button>
-            <p className="mt-2 text-blue-100">Find rocket launches from around the world</p>
+            <p className="mt-2 text-blue-100">Rocket launches from around the world</p>
           </div>
           <div className="flex items-center space-x-2">
             <button
