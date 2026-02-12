@@ -26,7 +26,7 @@ A full-stack web application to track rocket launches worldwide using the Launch
 - date-fns
 
 ### How to connect to Prod
-- ssh -i ~/.ssh/LightsailDefaultKey-us-west-2.pem ubuntu@16.148.114.21
+- ssh -i ~/.ssh/YOUR-KEY-FILE.pem ubuntu@123.456.789.0
 
 ## Quick Start
 
