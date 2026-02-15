@@ -1,18 +1,19 @@
 import { useState } from 'react';
-import { Filter, Download, X } from 'lucide-react';
+import { Filter, Download, X, Share2, Check } from 'lucide-react';
 
 export default function SearchFilters({ filters, filterOptions, onFilterChange, onDownloadICS }) {
-  const [localFilters, setLocalFilters] = useState({
-    search: '',
-    provider: '',
-    country: '',
-    state: '',
-    location: '',
-    rocket: '',
-    status: '',
-    dateFrom: '',
-    dateTo: ''
-  });
+  const [localFilters, setLocalFilters] = useState(() => ({
+    search: filters.search || '',
+    provider: filters.provider || '',
+    country: filters.country || '',
+    state: filters.state || '',
+    location: filters.location || '',
+    rocket: filters.rocket || '',
+    status: filters.status || '',
+    dateFrom: filters.dateFrom ? filters.dateFrom.split('T')[0] : '',
+    dateTo: filters.dateTo ? filters.dateTo.split('T')[0] : '',
+  }));
+  const [showCopied, setShowCopied] = useState(false);
 
   const handleInputChange = (key, value) => {
     // If changing country, clear state and location if they don't match the new country
@@ -311,6 +312,44 @@ export default function SearchFilters({ filters, filterOptions, onFilterChange, 
           className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
         >
           Apply Filters
+        </button>
+
+        {/* Share This View */}
+        <button
+          onClick={() => {
+            const url = window.location.href;
+            if (navigator.clipboard?.writeText) {
+              navigator.clipboard.writeText(url).then(() => {
+                setShowCopied(true);
+                setTimeout(() => setShowCopied(false), 2000);
+              });
+            } else {
+              // Fallback for older browsers
+              const textarea = document.createElement('textarea');
+              textarea.value = url;
+              textarea.style.position = 'fixed';
+              textarea.style.opacity = '0';
+              document.body.appendChild(textarea);
+              textarea.select();
+              document.execCommand('copy');
+              document.body.removeChild(textarea);
+              setShowCopied(true);
+              setTimeout(() => setShowCopied(false), 2000);
+            }
+          }}
+          className="w-full flex items-center justify-center space-x-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors font-medium"
+        >
+          {showCopied ? (
+            <>
+              <Check className="w-4 h-4" />
+              <span>Link Copied!</span>
+            </>
+          ) : (
+            <>
+              <Share2 className="w-4 h-4" />
+              <span>Share This View</span>
+            </>
+          )}
         </button>
 
         {/* Download ICS */}

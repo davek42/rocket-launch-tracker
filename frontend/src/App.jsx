@@ -6,18 +6,12 @@ import LaunchList from './components/LaunchList';
 import StatsView from './components/StatsView';
 import SearchFilters from './components/SearchFilters';
 import About from './components/About';
+import useUrlFilters from './hooks/useUrlFilters';
 import { Rocket } from 'lucide-react';
 
 function App() {
   const [showAbout, setShowAbout] = useState(false);
-  const [currentView, setCurrentView] = useState('launches');
-  const [filters, setFilters] = useState({
-    upcoming: true,
-    limit: 20,
-    offset: 0,
-    sort: 'net',
-    order: 'asc'
-  });
+  const { filters, setFilters, currentView, setCurrentView } = useUrlFilters();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['launches', filters],
