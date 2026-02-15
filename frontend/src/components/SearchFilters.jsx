@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Filter, Download, X, Share2, Check } from 'lucide-react';
+import { Filter, X, Share2, Check } from 'lucide-react';
 
-export default function SearchFilters({ filters, filterOptions, onFilterChange, onDownloadICS }) {
+export default function SearchFilters({ filters, filterOptions, onFilterChange }) {
   const [localFilters, setLocalFilters] = useState(() => ({
     search: filters.search || '',
     provider: filters.provider || '',
@@ -352,14 +352,6 @@ export default function SearchFilters({ filters, filterOptions, onFilterChange, 
           )}
         </button>
 
-        {/* Download ICS */}
-        <button
-          onClick={onDownloadICS}
-          className="w-full flex items-center justify-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium"
-        >
-          <Download className="w-4 h-4" />
-          <span>Download All (ICS)</span>
-        </button>
       </div>
     </div>
   );

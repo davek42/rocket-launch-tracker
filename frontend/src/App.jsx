@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchLaunches, fetchFilters, getBulkICSDownloadUrl } from './utils/api';
+import { fetchLaunches, fetchFilters } from './utils/api';
 import Header from './components/Header';
 import LaunchList from './components/LaunchList';
 import StatsView from './components/StatsView';
@@ -38,11 +38,6 @@ function App() {
     });
   };
 
-  const handleDownloadICS = () => {
-    const url = getBulkICSDownloadUrl(filters);
-    window.location.href = url;
-  };
-
   if (error) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -73,7 +68,6 @@ function App() {
               filters={filters}
               filterOptions={filterOptions?.data || {}}
               onFilterChange={handleFilterChange}
-              onDownloadICS={handleDownloadICS}
             />
           </aside>
 
