@@ -50,3 +50,6 @@ bun.lockb
 
 # Ops documentation (contains server-specific details)
 OPS-README.md
+
+# Claude
+.claude
