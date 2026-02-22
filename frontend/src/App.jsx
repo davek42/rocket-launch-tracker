@@ -6,6 +6,7 @@ import LaunchList from './components/LaunchList';
 import StatsView from './components/StatsView';
 import SearchFilters from './components/SearchFilters';
 import About from './components/About';
+import DocsPage from './components/DocsPage';
 import useUrlFilters from './hooks/useUrlFilters';
 import { Rocket } from 'lucide-react';
 
@@ -56,35 +57,40 @@ function App() {
       <Header
         onAboutClick={() => setShowAbout(true)}
         onStatsClick={() => setCurrentView('stats')}
+        onDocsClick={() => setCurrentView('docs')}
         onHomeClick={() => setCurrentView('launches')}
         currentView={currentView}
       />
 
       <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Filters Sidebar */}
-          <aside className="lg:col-span-1">
-            <SearchFilters
-              filters={filters}
-              filterOptions={filterOptions?.data || {}}
-              onFilterChange={handleFilterChange}
-            />
-          </aside>
-
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            {currentView === 'stats' ? (
-              <StatsView filters={filters} />
-            ) : (
-              <LaunchList
-                launches={data?.data?.launches || []}
-                pagination={data?.data?.pagination || {}}
-                isLoading={isLoading}
-                onPageChange={handlePageChange}
+        {currentView === 'docs' ? (
+          <DocsPage />
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Filters Sidebar */}
+            <aside className="lg:col-span-1">
+              <SearchFilters
+                filters={filters}
+                filterOptions={filterOptions?.data || {}}
+                onFilterChange={handleFilterChange}
               />
-            )}
+            </aside>
+
+            {/* Main Content */}
+            <div className="lg:col-span-3">
+              {currentView === 'stats' ? (
+                <StatsView filters={filters} />
+              ) : (
+                <LaunchList
+                  launches={data?.data?.launches || []}
+                  pagination={data?.data?.pagination || {}}
+                  isLoading={isLoading}
+                  onPageChange={handlePageChange}
+                />
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </main>
 
       <About isOpen={showAbout} onClose={() => setShowAbout(false)} />
