@@ -28,6 +28,12 @@ export const config = {
 
   // Logging
   logLevel: process.env.LOG_LEVEL || 'info',
+
+  // CORS: comma-separated list of allowed origins in production
+  // e.g. ALLOWED_ORIGINS=https://worldrocketlaunch.com,https://www.worldrocketlaunch.com
+  allowedOrigins: process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+    : ['https://worldrocketlaunch.com', 'https://www.worldrocketlaunch.com'],
 };
 
 // Validate required config

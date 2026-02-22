@@ -181,16 +181,27 @@ export function createSyncLog(syncType) {
   return result.lastInsertRowid;
 }
 
+// Allowlist of permitted column names for sync_log updates.
+// Column names cannot be parameterized in SQLite, so we validate against this set.
+const ALLOWED_SYNC_LOG_FIELDS = new Set([
+  'status', 'completed_at', 'records_fetched', 'records_added',
+  'records_updated', 'records_unchanged', 'api_calls_made',
+  'last_api_offset', 'error_message'
+]);
+
 /**
  * 📝 Update sync log entry
  * @param {number} syncId - Sync log ID
- * @param {Object} updates - Fields to update
+ * @param {Object} updates - Fields to update (keys must be in ALLOWED_SYNC_LOG_FIELDS)
  */
 export function updateSyncLog(syncId, updates) {
   const fields = [];
   const params = [];
 
   for (const [key, value] of Object.entries(updates)) {
+    if (!ALLOWED_SYNC_LOG_FIELDS.has(key)) {
+      throw new Error(`🚫 Invalid sync_log field: ${key}`);
+    }
     fields.push(`${key} = ?`);
     params.push(value);
   }

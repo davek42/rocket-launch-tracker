@@ -11,6 +11,9 @@ import {
 } from '../db/database.js';
 import { generateICS, generateBulkICS } from '../utils/icsGenerator.js';
 import logger from '../utils/logger.js';
+import config from '../config.js';
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const router = express.Router();
 
@@ -84,7 +87,7 @@ router.get('/', (req, res) => {
     logger.error('Error fetching launches:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: config.isDevelopment ? error.message : 'Internal server error'
     });
   }
 });
@@ -105,7 +108,7 @@ router.get('/stats', (req, res) => {
     logger.error('Error fetching stats:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: config.isDevelopment ? error.message : 'Internal server error'
     });
   }
 });
@@ -174,7 +177,7 @@ router.get('/ics', (req, res) => {
     logger.error('Error generating bulk ICS:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: config.isDevelopment ? error.message : 'Internal server error'
     });
   }
 });
@@ -232,7 +235,7 @@ router.get('/chart', (req, res) => {
     logger.error('❌ Error fetching chart data:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: config.isDevelopment ? error.message : 'Internal server error'
     });
   }
 });
@@ -244,6 +247,9 @@ router.get('/chart', (req, res) => {
 router.get('/:id', (req, res) => {
   try {
     const { id } = req.params;
+    if (!UUID_RE.test(id)) {
+      return res.status(400).json({ success: false, error: 'Invalid launch ID' });
+    }
     const launch = getLaunchById(id);
 
     if (!launch) {
@@ -261,7 +267,7 @@ router.get('/:id', (req, res) => {
     logger.error('Error fetching launch:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: config.isDevelopment ? error.message : 'Internal server error'
     });
   }
 });
@@ -273,6 +279,9 @@ router.get('/:id', (req, res) => {
 router.get('/:id/ics', (req, res) => {
   try {
     const { id } = req.params;
+    if (!UUID_RE.test(id)) {
+      return res.status(400).json({ success: false, error: 'Invalid launch ID' });
+    }
     const launch = getLaunchById(id);
 
     if (!launch) {
@@ -291,7 +300,7 @@ router.get('/:id/ics', (req, res) => {
     logger.error('Error generating ICS:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: config.isDevelopment ? error.message : 'Internal server error'
     });
   }
 });

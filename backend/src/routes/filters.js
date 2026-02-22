@@ -5,6 +5,7 @@
 import express from 'express';
 import { getFilterOptions } from '../db/database.js';
 import logger from '../utils/logger.js';
+import config from '../config.js';
 
 const router = express.Router();
 
@@ -24,7 +25,7 @@ router.get('/', (req, res) => {
     logger.error('Error fetching filter options:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: config.isDevelopment ? error.message : 'Internal server error'
     });
   }
 });
