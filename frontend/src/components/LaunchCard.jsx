@@ -121,7 +121,19 @@ export default function LaunchCard({ launch }) {
 
         <div className="flex items-center text-gray-600">
           <MapPin className="w-5 h-5 mr-2 flex-shrink-0" />
-          <p className="text-sm">{launch.location.name}</p>
+          {launch.location.latitude && launch.location.longitude ? (
+            <a
+              href={`https://www.google.com/maps?q=${launch.location.latitude},${launch.location.longitude}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              className="text-sm text-blue-600 hover:underline"
+            >
+              {launch.location.name}
+            </a>
+          ) : (
+            <p className="text-sm">{launch.location.name}</p>
+          )}
         </div>
 
         {(launch.spacecraft?.name || launch.spacecraft?.payloadTotalMassKg) && (
