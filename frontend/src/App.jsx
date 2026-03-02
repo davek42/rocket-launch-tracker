@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { fetchLaunches, fetchFilters } from './utils/api';
 import Header from './components/Header';
@@ -7,10 +8,12 @@ import StatsView from './components/StatsView';
 import SearchFilters from './components/SearchFilters';
 import About from './components/About';
 import DocsPage from './components/DocsPage';
+import AgenciesPage from './components/AgenciesPage';
+import AgencyDetailPage from './components/AgencyDetailPage';
 import useUrlFilters from './hooks/useUrlFilters';
 import { Rocket } from 'lucide-react';
 
-function App() {
+function LaunchesView() {
   const [showAbout, setShowAbout] = useState(false);
   const { filters, setFilters, currentView, setCurrentView } = useUrlFilters();
 
@@ -95,6 +98,16 @@ function App() {
 
       <About isOpen={showAbout} onClose={() => setShowAbout(false)} />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<LaunchesView />} />
+      <Route path="/agencies" element={<AgenciesPage />} />
+      <Route path="/agencies/:slug" element={<AgencyDetailPage />} />
+    </Routes>
   );
 }
 

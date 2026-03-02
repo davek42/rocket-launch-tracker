@@ -98,6 +98,54 @@ export function getICSDownloadUrl(id) {
 }
 
 /**
+ * Fetch agencies with filters
+ */
+export async function fetchAgencies(filters = {}) {
+  const params = new URLSearchParams();
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      params.append(key, value);
+    }
+  });
+
+  const url = `${API_BASE_URL}/agencies?${params.toString()}`;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch agencies');
+  }
+
+  return response.json();
+}
+
+/**
+ * Fetch a single agency by slug
+ */
+export async function fetchAgencyBySlug(slug) {
+  const response = await fetch(`${API_BASE_URL}/agencies/${slug}`);
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch agency');
+  }
+
+  return response.json();
+}
+
+/**
+ * Fetch agency filter options
+ */
+export async function fetchAgencyFilters() {
+  const response = await fetch(`${API_BASE_URL}/agencies/filters`);
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch agency filters');
+  }
+
+  return response.json();
+}
+
+/**
  * Get bulk ICS download URL with filters
  */
 export function getBulkICSDownloadUrl(filters = {}) {

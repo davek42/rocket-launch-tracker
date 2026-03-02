@@ -14,6 +14,7 @@ import { initDatabase } from './db/database.js';
 import launchesRoutes from './routes/launches.js';
 import filtersRoutes from './routes/filters.js';
 import docsRoutes from './routes/docs.js';
+import agenciesRoutes from './routes/agencies.js';
 
 const app = express();
 
@@ -90,6 +91,7 @@ app.use('/api/launches/ics', icsLimiter);  // tighter limit for ICS export
 app.use('/api/launches', apiLimiter, launchesRoutes);
 app.use('/api/filters', apiLimiter, filtersRoutes);
 app.use('/api/docs', apiLimiter, docsRoutes);
+app.use('/api/agencies', apiLimiter, agenciesRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -120,6 +122,9 @@ app.listen(config.port, () => {
   logger.info(`  GET  /api/launches/ics - Download filtered launches ICS file`);
   logger.info(`  GET  /api/filters - Get filter options`);
   logger.info(`  GET  /api/docs - Machine-readable API documentation`);
+  logger.info(`  GET  /api/agencies - List agencies with filters`);
+  logger.info(`  GET  /api/agencies/filters - Agency filter options`);
+  logger.info(`  GET  /api/agencies/:slug - Single agency details`);
   logger.info(`  GET  /health - Health check\n`);
 });
 
