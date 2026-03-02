@@ -335,7 +335,16 @@ function formatLaunchForAPI(launch) {
       name: launch.provider_name,
       abbrev: launch.provider_abbrev,
       type: launch.provider_type,
-      countryCode: launch.provider_country_code
+      countryCode: launch.provider_country_code,
+      socialLinks: {
+        twitterX:  launch.twitter_x_url  || null,
+        instagram: launch.instagram_url  || null,
+        facebook:  launch.facebook_url   || null,
+        bluesky:   launch.bluesky_url    || null,
+        youtube:   launch.youtube_url    || null,
+        linkedin:  launch.linkedin_url   || null,
+        website:   launch.website_url    || null,
+      }
     },
     pad: {
       id: launch.pad_id,

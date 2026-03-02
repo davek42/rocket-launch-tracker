@@ -1,6 +1,55 @@
-import { format, formatDistanceToNow, isPast, isFuture } from 'date-fns';
-import { Calendar, MapPin, Rocket, Download, Package } from 'lucide-react';
+import { format, formatDistanceToNow, isFuture } from 'date-fns';
+import { Calendar, MapPin, Rocket, Download, Package, Globe2 } from 'lucide-react';
+import {
+  FaXTwitter,
+  FaInstagram,
+  FaFacebook,
+  FaBluesky,
+  FaYoutube,
+  FaLinkedin,
+  FaGlobe,
+} from 'react-icons/fa6';
 import { getICSDownloadUrl } from '../utils/api';
+
+const SOCIAL_ICONS = [
+  { key: 'twitterX',  Icon: FaXTwitter,  label: 'X (Twitter)' },
+  { key: 'instagram', Icon: FaInstagram, label: 'Instagram'    },
+  { key: 'facebook',  Icon: FaFacebook,  label: 'Facebook'     },
+  { key: 'bluesky',   Icon: FaBluesky,   label: 'Bluesky'      },
+  { key: 'youtube',   Icon: FaYoutube,   label: 'YouTube'      },
+  { key: 'linkedin',  Icon: FaLinkedin,  label: 'LinkedIn'     },
+  { key: 'website',   Icon: FaGlobe,     label: 'Website'      },
+];
+
+function ProviderSocialLinks({ socialLinks }) {
+  if (!socialLinks) {
+    return <span className="text-xs text-gray-400 italic">No social media</span>;
+  }
+
+  const links = SOCIAL_ICONS.filter(({ key }) => socialLinks[key]);
+
+  if (links.length === 0) {
+    return <span className="text-xs text-gray-400 italic">No social media</span>;
+  }
+
+  return (
+    <div className="flex items-center space-x-1">
+      {links.map(({ key, Icon, label }) => (
+        <a
+          key={key}
+          href={socialLinks[key]}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={e => e.stopPropagation()}
+          className="p-1.5 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+          title={label}
+        >
+          <Icon className="w-4 h-4" />
+        </a>
+      ))}
+    </div>
+  );
+}
 
 export default function LaunchCard({ launch }) {
   const launchDate = new Date(launch.net);
@@ -99,6 +148,11 @@ export default function LaunchCard({ launch }) {
             {launch.mission.description}
           </p>
         )}
+
+        <div className="flex items-center space-x-1 pt-3 border-t border-gray-100">
+          <Globe2 className="w-4 h-4 text-gray-400 mr-1 flex-shrink-0" />
+          <ProviderSocialLinks socialLinks={launch.provider?.socialLinks} />
+        </div>
       </div>
     </div>
   );

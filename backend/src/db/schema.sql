@@ -152,6 +152,14 @@ CREATE TABLE IF NOT EXISTS providers (
     country_code TEXT,
     logo_url TEXT,
     wiki_url TEXT,
+    twitter_x_url TEXT,
+    instagram_url TEXT,
+    facebook_url TEXT,
+    bluesky_url TEXT,
+    youtube_url TEXT,
+    linkedin_url TEXT,
+    website_url TEXT,
+    notes TEXT,
     UNIQUE(name)
 );
 

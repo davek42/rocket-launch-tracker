@@ -228,9 +228,17 @@ export function getLaunchById(id) {
     SELECT
       launches.*,
       manual_payloads.payload_mass_kg as manual_payload_mass_kg,
-      manual_payloads.source as manual_payload_source
+      manual_payloads.source as manual_payload_source,
+      providers.twitter_x_url,
+      providers.instagram_url,
+      providers.facebook_url,
+      providers.bluesky_url,
+      providers.youtube_url,
+      providers.linkedin_url,
+      providers.website_url
     FROM launches
     LEFT JOIN manual_payloads ON launches.name LIKE manual_payloads.mission_pattern
+    LEFT JOIN providers ON launches.provider_name = providers.name
     WHERE launches.id = ?
   `);
   return stmt.get(id);
@@ -359,14 +367,22 @@ export function queryLaunches(filters = {}) {
   `);
   const { total } = countStmt.get(...params);
 
-  // Get paginated results with manual payload data
+  // Get paginated results with manual payload data and provider social links
   const dataStmt = db.prepare(`
     SELECT
       launches.*,
       manual_payloads.payload_mass_kg as manual_payload_mass_kg,
-      manual_payloads.source as manual_payload_source
+      manual_payloads.source as manual_payload_source,
+      providers.twitter_x_url,
+      providers.instagram_url,
+      providers.facebook_url,
+      providers.bluesky_url,
+      providers.youtube_url,
+      providers.linkedin_url,
+      providers.website_url
     FROM launches
     LEFT JOIN manual_payloads ON launches.name LIKE manual_payloads.mission_pattern
+    LEFT JOIN providers ON launches.provider_name = providers.name
     ${whereClause}
     ORDER BY ${sortField} ${sortOrder}
     LIMIT ? OFFSET ?
