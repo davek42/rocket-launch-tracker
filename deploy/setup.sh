@@ -356,14 +356,14 @@ configure_pm2() {
 setup_cron_job() {
     log_info "Setting up daily sync cron job..."
 
-    # Create cron job for daily sync at 4 AM UTC
-    local cron_cmd="0 4 * * * cd $DEPLOY_DIR/backend && $BUN_BIN run daily-sync >> $LOG_DIR/sync.log 2>&1"
+    # Create cron job for sync every 4 hours (6 times/day) UTC
+    local cron_cmd="0 */4 * * * cd $DEPLOY_DIR/backend && $BUN_BIN run daily-sync >> $LOG_DIR/sync.log 2>&1"
 
     # Add to user's crontab
     (su - $DEPLOY_USER -c "crontab -l 2>/dev/null" || true; echo "$cron_cmd") | \
         su - $DEPLOY_USER -c "crontab -"
 
-    log_success "Daily sync cron job configured (runs at 4 AM UTC)"
+    log_success "Sync cron job configured (runs every 4 hours, 6x/day UTC)"
 
     # Show crontab
     log_info "Current crontab:"
