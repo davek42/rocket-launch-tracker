@@ -333,6 +333,7 @@ function formatLaunchForAPI(launch) {
     provider: {
       id: launch.provider_id,
       name: launch.provider_name,
+      slug: launch.provider_slug || null,
       abbrev: launch.provider_abbrev,
       type: launch.provider_type,
       countryCode: launch.provider_country_code,

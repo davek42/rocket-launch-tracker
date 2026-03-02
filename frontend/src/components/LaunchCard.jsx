@@ -1,4 +1,5 @@
 import { format, formatDistanceToNow, isFuture } from 'date-fns';
+import { Link } from 'react-router-dom';
 import { Calendar, MapPin, Rocket, Download, Package, Globe2 } from 'lucide-react';
 import {
   FaXTwitter,
@@ -114,7 +115,17 @@ export default function LaunchCard({ launch }) {
         <div className="flex items-center text-gray-600">
           <Rocket className="w-5 h-5 mr-2 flex-shrink-0" />
           <div>
-            <p className="font-semibold">{launch.provider.name}</p>
+            {launch.provider.slug ? (
+              <Link
+                to={`/agencies/${launch.provider.slug}`}
+                onClick={e => e.stopPropagation()}
+                className="font-semibold text-blue-600 hover:underline"
+              >
+                {launch.provider.name}
+              </Link>
+            ) : (
+              <p className="font-semibold">{launch.provider.name}</p>
+            )}
             <p className="text-sm">{launch.rocket.name}</p>
           </div>
         </div>
