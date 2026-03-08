@@ -17,9 +17,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const DB_PATH = join(__dirname, '../data/launches.db');
-const DOCS_DIR = '/Users/davidk/dev/docs/projects/web-rocket-launch';
-const PUBLIC_CSV = join(DOCS_DIR, 'rocket-launch-providers-public.csv');
-const PRIVATE_CSV = join(DOCS_DIR, 'rocket-launch-providers-private.csv');
+const PUBLIC_CSV = '/tmp/rocket-launch-providers-public.csv';
+const PRIVATE_CSV = '/tmp/rocket-launch-providers-private.csv';
 
 // ─── Name remaps: CSV name → DB name ─────────────────────────────────────────
 // Add entries here if the CSV name doesn't exactly match the DB provider name.
