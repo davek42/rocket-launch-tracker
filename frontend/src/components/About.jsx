@@ -1,4 +1,4 @@
-import { X, ExternalLink, Rocket, Code, Database } from 'lucide-react';
+import { X, ExternalLink, Rocket, Code, Database, Github } from 'lucide-react';
 
 export default function About({ isOpen, onClose }) {
   if (!isOpen) return null;
@@ -28,6 +28,19 @@ export default function About({ isOpen, onClose }) {
           <div>
             <p className="text-gray-700 leading-relaxed">
               A web application to find rocket launches worldwide, featuring over 7,700 historical and upcoming launches with search, filter, and calendar export capabilities.
+            </p>
+            <p className="text-gray-700 leading-relaxed mt-3">
+              This is an open source project.{' '}
+              <a
+                href="https://github.com/davek42/rocket-launch-tracker"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 inline-flex items-center"
+              >
+                <Github className="w-4 h-4 mr-1" />
+                View on GitHub
+                <ExternalLink className="w-3 h-3 ml-1" />
+              </a>
             </p>
           </div>
 
