@@ -1,9 +1,90 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Loader2, MapPin, Rocket, Building2 } from 'lucide-react';
+import { ArrowLeft, Loader2, MapPin, Rocket, Building2, TrendingUp, DollarSign } from 'lucide-react';
 import { fetchAgencyBySlug } from '../utils/api';
 import Header from './Header';
 import { SOCIAL_ICONS, STATUS_STYLES, COUNTRY_FLAGS } from './AgencyCard';
+
+function CompanyInfoCard({ financials }) {
+  const { companyType, stockExchange, ticker, irUrl, keyInvestors, totalFunding } = financials;
+  const isPublic = companyType === 'Public';
+
+  const icon = isPublic ? (
+    <TrendingUp className="w-5 h-5 text-green-600" />
+  ) : (
+    <DollarSign className="w-5 h-5 text-blue-600" />
+  );
+
+  let typeLabel, typeBadgeClass;
+  if (companyType === 'Joint Venture') {
+    typeLabel = '🤝 Joint Venture';
+    typeBadgeClass = 'bg-purple-100 text-purple-800';
+  } else if (companyType === 'Subsidiary') {
+    typeLabel = '🏢 Subsidiary';
+    typeBadgeClass = 'bg-yellow-100 text-yellow-800';
+  } else if (isPublic) {
+    typeLabel = '📈 Publicly Traded';
+    typeBadgeClass = 'bg-green-100 text-green-800';
+  } else {
+    typeLabel = '🔒 ' + companyType;
+    typeBadgeClass = 'bg-gray-100 text-gray-700';
+  }
+
+  const investors = keyInvestors
+    ? keyInvestors.split(',').map(s => s.trim()).filter(Boolean)
+    : [];
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center space-x-2">
+        {icon}
+        <span>Company Info</span>
+      </h2>
+
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${typeBadgeClass}`}>
+          {typeLabel}
+        </span>
+        {isPublic && stockExchange && ticker && (
+          <span className="font-mono text-base font-bold text-gray-800">
+            {stockExchange}: {ticker}
+          </span>
+        )}
+        {totalFunding && !isPublic && (
+          <span className="text-sm text-gray-600">
+            Total Funding: <span className="font-semibold text-gray-800">{totalFunding}</span>
+          </span>
+        )}
+      </div>
+
+      {isPublic && irUrl && (
+        <a
+          href={irUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center space-x-1.5 px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium mb-3"
+        >
+          <TrendingUp className="w-4 h-4" />
+          <span>Investor Relations →</span>
+        </a>
+      )}
+
+      {investors.length > 0 && (
+        <div>
+          <p className="text-sm font-semibold text-gray-700 mb-2">Key Investors:</p>
+          <ul className="space-y-1">
+            {investors.map(inv => (
+              <li key={inv} className="flex items-center space-x-2 text-sm text-gray-700">
+                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full flex-shrink-0" />
+                <span>{inv}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AgencyDetailPage() {
   const { slug } = useParams();
@@ -102,6 +183,11 @@ export default function AgencyDetailPage() {
               </div>
             )}
           </div>
+
+          {/* Company Info */}
+          {agency.financials?.companyType && (
+            <CompanyInfoCard financials={agency.financials} />
+          )}
 
           {/* Launch locations */}
           {agency.locations?.length > 0 && (

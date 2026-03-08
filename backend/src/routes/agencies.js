@@ -198,6 +198,14 @@ function formatAgencyForAPI(agency, locations = []) {
       linkedin:  agency.linkedin_url   || null,
       website:   agency.website_url    || null,
     },
+    financials: {
+      companyType:   agency.company_type   || null,
+      stockExchange: agency.stock_exchange || null,
+      ticker:        agency.ticker         || null,
+      irUrl:         agency.ir_url         || null,
+      keyInvestors:  agency.key_investors  || null,
+      totalFunding:  agency.total_funding  || null,
+    },
     locations,
   };
 }
